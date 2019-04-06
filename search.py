@@ -18,7 +18,7 @@ class Node():
         self.g = 0
         self.h = 0
         self.f = 0
-        
+
 
 def main():
     with open(sys.argv[1]) as file:
@@ -50,7 +50,7 @@ def exitable(colour, index):
         return True
     return False
 
-def moveable(index_curr, index_dest):
+def moveable(board, index_curr, index_dest):
     #see if destination is in move action range
     if index_dest[0] == index_curr[0] + 1 or \
         index_dest[0] == index_curr[0] - 1 or \
