@@ -33,6 +33,19 @@ def exitable(colour, index):
         return True
     return False
 
+def moveable(index_curr, index_dest):
+    #see if destination is in move action range
+    if index_dest[0] == index_curr[0] + 1 or \
+        index_dest[0] == index_curr[0] - 1 or \
+        index_dest[1] == index_curr[1] + 1 or \
+        index_dest[1] == index_curr[1] - 1:
+        #see if destination is occupied
+        for key in board:
+            if key[0] == index_dest[0] and \
+            key[1] == index_dest[1]:
+                return False
+        return True
+    return False
 
 def print_board(board_dict, message="", debug=False, **kwargs):
     """
@@ -41,17 +54,17 @@ def print_board(board_dict, message="", debug=False, **kwargs):
     Arguments:
 
     * `board_dict` -- dictionary with tuples for keys and anything printable
-    for values. The tuple keys are interpreted as hexagonal coordinates (using 
-    the axial coordinate system outlined in the project specification) and the 
-    values are formatted as strings and placed in the drawing at the corres- 
-    ponding location (only the first 5 characters of each string are used, to 
+    for values. The tuple keys are interpreted as hexagonal coordinates (using
+    the axial coordinate system outlined in the project specification) and the
+    values are formatted as strings and placed in the drawing at the corres-
+    ponding location (only the first 5 characters of each string are used, to
     keep the drawings small). Coordinates with missing values are left blank.
 
     Keyword arguments:
 
-    * `message` -- an optional message to include on the first line of the 
+    * `message` -- an optional message to include on the first line of the
     drawing (above the board) -- default `""` (resulting in a blank message).
-    * `debug` -- for a larger board drawing that includes the coordinates 
+    * `debug` -- for a larger board drawing that includes the coordinates
     inside each hex, set this to `True` -- default `False`.
     * Or, any other keyword arguments! They will be forwarded to `print()`.
     """
@@ -61,17 +74,17 @@ def print_board(board_dict, message="", debug=False, **kwargs):
         # Use the normal board template (smaller, not showing coordinates)
         template = """# {0}
 #           .-'-._.-'-._.-'-._.-'-.
-#          |{16:}|{23:}|{29:}|{34:}| 
+#          |{16:}|{23:}|{29:}|{34:}|
 #        .-'-._.-'-._.-'-._.-'-._.-'-.
-#       |{10:}|{17:}|{24:}|{30:}|{35:}| 
+#       |{10:}|{17:}|{24:}|{30:}|{35:}|
 #     .-'-._.-'-._.-'-._.-'-._.-'-._.-'-.
-#    |{05:}|{11:}|{18:}|{25:}|{31:}|{36:}| 
+#    |{05:}|{11:}|{18:}|{25:}|{31:}|{36:}|
 #  .-'-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'-.
-# |{01:}|{06:}|{12:}|{19:}|{26:}|{32:}|{37:}| 
+# |{01:}|{06:}|{12:}|{19:}|{26:}|{32:}|{37:}|
 # '-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'
-#    |{02:}|{07:}|{13:}|{20:}|{27:}|{33:}| 
+#    |{02:}|{07:}|{13:}|{20:}|{27:}|{33:}|
 #    '-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'
-#       |{03:}|{08:}|{14:}|{21:}|{28:}| 
+#       |{03:}|{08:}|{14:}|{21:}|{28:}|
 #       '-._.-'-._.-'-._.-'-._.-'-._.-'
 #          |{04:}|{09:}|{15:}|{22:}|
 #          '-._.-'-._.-'-._.-'-._.-'"""
@@ -79,21 +92,21 @@ def print_board(board_dict, message="", debug=False, **kwargs):
         # Use the debug board template (larger, showing coordinates)
         template = """# {0}
 #              ,-' `-._,-' `-._,-' `-._,-' `-.
-#             | {16:} | {23:} | {29:} | {34:} | 
+#             | {16:} | {23:} | {29:} | {34:} |
 #             |  0,-3 |  1,-3 |  2,-3 |  3,-3 |
 #          ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
 #         | {10:} | {17:} | {24:} | {30:} | {35:} |
 #         | -1,-2 |  0,-2 |  1,-2 |  2,-2 |  3,-2 |
-#      ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-. 
+#      ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
 #     | {05:} | {11:} | {18:} | {25:} | {31:} | {36:} |
 #     | -2,-1 | -1,-1 |  0,-1 |  1,-1 |  2,-1 |  3,-1 |
 #  ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
 # | {01:} | {06:} | {12:} | {19:} | {26:} | {32:} | {37:} |
 # | -3, 0 | -2, 0 | -1, 0 |  0, 0 |  1, 0 |  2, 0 |  3, 0 |
-#  `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' 
+#  `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-'
 #     | {02:} | {07:} | {13:} | {20:} | {27:} | {33:} |
 #     | -3, 1 | -2, 1 | -1, 1 |  0, 1 |  1, 1 |  2, 1 |
-#      `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' 
+#      `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-'
 #         | {03:} | {08:} | {14:} | {21:} | {28:} |
 #         | -3, 2 | -2, 2 | -1, 2 |  0, 2 |  1, 2 | key:
 #          `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' ,-' `-.
