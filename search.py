@@ -2,9 +2,9 @@
 COMP30024 Artificial Intelligence, Semester 1 2019
 Solution to Project Part A: Searching
 
-Authors: 
+Authors:
 Group Sandscuplture
-Liu Xiaohan, xiaohanl4,  
+Liu Xiaohan, xiaohanl4,
 Zhang Xun, xunz4, 854776
 """
 
@@ -15,18 +15,26 @@ def main():
     with open(sys.argv[1]) as file:
         data = json.load(file)
 
-    # test for data input
-    # print(data['pieces'])
-    # print(data)
-
     # TODO: Search for and output winning sequence of moves
     # ...
+    
+    # test for data input
+    # print(data['pieces'])
+    print(exitable('red', [3, -3]))
+    print(exitable(data['colour'], data['pieces'][0]))
+
+def exitable(colour, index):
+    if colour == 'red' and index[0] == 3 or \
+        colour == 'green' and index[1] == 3 or \
+            colour == 'blue' and index[0] + index[1] == -3:
+        return True
+    return False
 
 
 def print_board(board_dict, message="", debug=False, **kwargs):
     """
     Helper function to print a drawing of a hexagonal board's contents.
-    
+
     Arguments:
 
     * `board_dict` -- dictionary with tuples for keys and anything printable
@@ -93,11 +101,11 @@ def print_board(board_dict, message="", debug=False, **kwargs):
     # prepare the provided board contents as strings, formatted to size.
     ran = range(-3, +3+1)
     cells = []
-    for qr in [(q,r) for q in ran for r in ran if -q-r in ran]:
+    for qr in [(q, r) for q in ran for r in ran if -q-r in ran]:
         if qr in board_dict:
             cell = str(board_dict[qr]).center(5)
         else:
-            cell = "     " # 5 spaces will fill a cell
+            cell = "     "  # 5 spaces will fill a cell
         cells.append(cell)
 
     # fill in the template to create the board drawing, then print!
