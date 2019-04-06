@@ -17,11 +17,14 @@ def main():
 
     # TODO: Search for and output winning sequence of moves
     # ...
-    
+
     # test for data input
     # print(data['pieces'])
     print(exitable('red', [3, -3]))
     print(exitable(data['colour'], data['pieces'][0]))
+
+    board = {(0, 0) : 'red', (0, -1) : 'red', (-2, 1) : 'red', (-1, 0) : 'block', (-1, 1) : 'block', (1, 1) : 'block', (3, -1) : 'block'}
+    print_board(board)
 
 def exitable(colour, index):
     if colour == 'red' and index[0] == 3 or \
