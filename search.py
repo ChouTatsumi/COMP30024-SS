@@ -11,12 +11,29 @@ Zhang Xun, xunz4, 854776
 import sys
 import json
 
+class Node():
+
+    def __init__(self, index):
+        self.index = index
+        self.g = 0
+        self.h = 0
+        self.f = 0
+        
+
 def main():
     with open(sys.argv[1]) as file:
         data = json.load(file)
 
     # TODO: Search for and output winning sequence of moves
     # ...
+
+    # convert data to state
+    state = {}
+    for qr in data['blocks']:
+        state[(qr[0], qr[1])] = 'block'
+    for qr in data['pieces']:
+        state[(qr[0], qr[1])] = data['colour']
+    print(state)
 
     # test for data input
     # print(data['pieces'])
