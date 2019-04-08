@@ -135,6 +135,23 @@ def moveable(board, index_curr, index_dest):
         return True
     return False
 
+
+def jumpable(board, index_curr, index_dest):
+    #see if destination is occupied
+    for key in board:
+        if key[0] == index_dest[0] and \
+                key[1] == index_dest[1]:
+            return False
+    #see if destination is in jump range
+    if ((index_dest[0] - index_curr[0]) % 2) == 0 and \
+        ((index_dest[1] - index_curr[1]) % 2) == 0 and \
+        (index_dest[0] - index_curr[0]) < 3 and \
+            (index_dest[1] - index_curr[1]) < 3:
+        return True
+    #now that we know it's not in range
+    return False
+
+
 def print_board(board_dict, message="", debug=False, **kwargs):
     """
     Helper function to print a drawing of a hexagonal board's contents.
