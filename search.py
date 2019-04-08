@@ -142,12 +142,10 @@ def exitable(colour, index):
         return True
     return False
 
-def moveable(board, index_curr, index_dest):
+def moveable(state, index_curr, index_dest):
     #see if destination is occupied
-    for key in board:
-        if key[0] == index_dest[0] and \
-                key[1] == index_dest[1]:
-            return False
+    if index_dest in state.keys():
+        return False
     #see if destination is in move range
     for tuple in direction_list:
         if index_dest[0] == (index_curr[0] + tuple[0]) and \
@@ -156,13 +154,10 @@ def moveable(board, index_curr, index_dest):
     #return False by default
     return False
 
-
-def jumpable(board, index_curr, index_dest):
+def jumpable(state, index_curr, index_dest):
     #see if destination is occupied
-    for key in board:
-        if key[0] == index_dest[0] and \
-                key[1] == index_dest[1]:
-            return False
+    if index_dest in state.keys():
+        return False
     #see if destination is in jump range
     if ((index_dest[0] - index_curr[0]) % 2) == 0 and \
         ((index_dest[1] - index_curr[1]) % 2) == 0 and \
@@ -172,10 +167,23 @@ def jumpable(board, index_curr, index_dest):
     #return False by default
     return False
 
-def possible_dest(board, index_curr):
-    dest_list = []
-    for tuple in direction_list:
-        
+def possible_dest(state, index_curr):
+    dest_dic = {}
+    index_dest = ()
+    #see what's in move range
+    for tuple in direction_dic:
+        #let dest be one of six locations in move range
+        index_dest = (index_curr[0] + tuple[0], index_curr[1] + tuple[1])
+        #see if dest is occupied with an obstacle
+        if moveable(state, index_curr, index_dest):
+            dest_dic[index_dest] = "move"
+        else:
+            #let dest be the location behind that obstacle
+            index_dest = (index_curr[0] + tuple[0], index_curr[1] + tuple[1])
+            #see if dest is occupied with an obstacle
+            if jumpable(state, index_curr, index_dest):
+                dest_dic[index_dest] = "jump"
+    return dest_dic
 
 def print_board(board_dict, message="", debug=False, **kwargs):
     """
