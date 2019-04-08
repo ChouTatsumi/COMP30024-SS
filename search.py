@@ -14,10 +14,11 @@ import json
 class Node():
     """A node class for A* Pathfinding"""
 
-    def __init__(self, index, movement, parent = None):
+    def __init__(self, index, movement, parent = None, state = None):
         self.index = index
         self.movement = movement
         self.parent = parent
+        self.state = state
         self.g = 0
         self.h = 0
         self.f = 0
@@ -31,25 +32,30 @@ def main():
     # ...
 
     # convert data to state
-    state = {}
+    init_state = {}
+    pieces = {}
+
     for qr in data['blocks']:
-        state[(qr[0], qr[1])] = 'block'
+        init_state[(qr[0], qr[1])] = 'block'
     for qr in data['pieces']:
-        state[(qr[0], qr[1])] = data['colour']
-    print(state)
+        pieces[(qr[0], qr[1])] = data['colour']
+        init_state[(qr[0], qr[1])] = data['colour']
+
+    print(init_state)
+
+    # search for path
+    path = astar(pieces.keys()[0], pieces.get(pieces.keys()[0]), init_state)
+    print_path(path)
 
     # test for data input
     # print(data['pieces'])
-    print(exitable('red', [3, -3]))
-    print(exitable(data['colour'], data['pieces'][0]))
+    # print(exitable('red', [3, -3]))
+    # print(exitable(data['colour'], data['pieces'][0]))
 
-    board = {(0, 0) : 'red', (0, -1) : 'red', (-2, 1) : 'red', (-1, 0) : 'block', (-1, 1) : 'block', (1, 1) : 'block', (3, -1) : 'block'}
-    print_board(board)
+    # board = {(0, 0) : 'red', (0, -1) : 'red', (-2, 1) : 'red', (-1, 0) : 'block', (-1, 1) : 'block', (1, 1) : 'block', (3, -1) : 'block'}
+    # print_board(board)
 
-    # path = astar(index, colour)
-    # print_path(path)
-
-def astar(index, colour):
+def astar(index, colour, state):
     # Initialize both open and closed list
     open_list = []
     close_list = []
@@ -114,11 +120,13 @@ def print_path(path):
         print("ERROR: path list didn't start at start node.")
 
     last_index = start_node.index
+    print_board(start_node.state, '\n')
 
     for i in range(1, len(path)):
         node = path[i]
         print('{} from {} to {}.'.format(node.movement, last_index, node.index))
         last_index = node.index
+        print_board('\n', node.state, '\n')
 
     print('EXIT from {}.'.format(last_index))
     return path
