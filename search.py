@@ -11,6 +11,9 @@ Zhang Xun, xunz4, 854776
 import sys
 import json
 
+direction_list = [(-1, 0), (0, -1), (1, -1), \
+(1, 0), (0, 1), (-1, 1)]
+
 class Node():
     """A node class for A* Pathfinding"""
 
@@ -84,11 +87,11 @@ def astar(index, colour):
                 path.append(current)
                 current = current.parent
             return path[::-1]
-        
+
         # Generate children
         children = []
-        
-        
+
+
 
 def heuristic(colour, index):
     # x = ?
@@ -97,7 +100,7 @@ def heuristic(colour, index):
 
 def admissible_heuristic(colour, index):
     """
-    This is a function to calculate the true distance from index to any 
+    This is a function to calculate the true distance from index to any
     terminal
     """
     if colour == 'red':
@@ -122,7 +125,7 @@ def print_path(path):
 
     print('EXIT from {}.'.format(last_index))
     return path
-    
+
 
 def exitable(colour, index):
     if colour == 'red' and index[0] == 3 or \
@@ -132,17 +135,17 @@ def exitable(colour, index):
     return False
 
 def moveable(board, index_curr, index_dest):
-    #see if destination is in move action range
-    if index_dest[0] == index_curr[0] + 1 or \
-        index_dest[0] == index_curr[0] - 1 or \
-        index_dest[1] == index_curr[1] + 1 or \
-        index_dest[1] == index_curr[1] - 1:
-        #see if destination is occupied
-        for key in board:
-            if key[0] == index_dest[0] and \
-            key[1] == index_dest[1]:
-                return False
-        return True
+    #see if destination is occupied
+    for key in board:
+        if key[0] == index_dest[0] and \
+                key[1] == index_dest[1]:
+            return False
+    #see if destination is in move range
+    for tuple in direction_list:
+        if index_dest[0] == (index_curr[0] + tuple[0]) and \
+            index_dest[1] == (index_curr[1] + tuple[1]):
+            return True
+    #return False by default
     return False
 
 
@@ -158,9 +161,13 @@ def jumpable(board, index_curr, index_dest):
         (index_dest[0] - index_curr[0]) < 3 and \
             (index_dest[1] - index_curr[1]) < 3:
         return True
-    #now that we know it's not in range
+    #return False by default
     return False
 
+def possible_dest(board, index_curr):
+    dest_list = []
+    for tuple in direction_list:
+        
 
 def print_board(board_dict, message="", debug=False, **kwargs):
     """
