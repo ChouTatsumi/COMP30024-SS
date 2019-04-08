@@ -26,6 +26,8 @@ class Node():
         self.h = 0
         self.f = 0
 
+    def __eq__(self, other):
+        return self.index == other.index
 
 def main():
     with open(sys.argv[1]) as file:
@@ -65,6 +67,7 @@ def astar(index, colour, state):
 
     #Add the start node
     start_node = Node(index, 'START')
+    start_node.state = state
     start_node.g = 0
     start_node.h = heuristic(index, colour)
     start_node.f = start_node.g + start_node.h
@@ -81,10 +84,15 @@ def astar(index, colour, state):
                 curr_node = item
                 curr_i = i
 
+        # update board state
+        state.pop(curr_node.parent.index)
+        state[curr_node.index] = colour
+
         # Add current node to close list from open list
+        curr_node.state = state.copy()
         open_list.pop(curr_i)
         close_list.append(curr_node)
-
+        
         # Find the goal
         if exitable(colour, curr_node.index):
             path = []
@@ -96,7 +104,27 @@ def astar(index, colour, state):
 
         # Generate children
         children = []
+        children_dic = possible_dest(state, curr_node.index)
+        for (key, value) in children_dic:
+            new_node = Node(key, value, curr_node)
+            children.append(new_node)
 
+        # evaluate the cost of each child
+        for child in children:
+
+            for node in close_list:
+                if child == node:
+                    continue
+
+            child.g = curr_node.g + 1
+            child.h = heuristic(colour, child.index)
+            child.f = child.g + child.h
+
+            for node in open_list:
+                if child == node and child.g > node.g:
+                    continue
+
+            open_list.append(child)
 
 
 def heuristic(colour, index):
@@ -171,7 +199,7 @@ def possible_dest(state, index_curr):
     dest_dic = {}
     index_dest = ()
     #see what's in move range
-    for tuple in direction_dic:
+    for tuple in direction_list:
         #let dest be one of six locations in move range
         index_dest = (index_curr[0] + tuple[0], index_curr[1] + tuple[1])
         #see if dest is occupied with an obstacle
