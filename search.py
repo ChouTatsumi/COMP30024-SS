@@ -4,7 +4,7 @@ Solution to Project Part A: Searching
 
 Authors:
 Group Sandscuplture
-Liu Xiaohan, xiaohanl4,
+Liu Xiaohan, xiaohanl4, 908471
 Zhang Xun, xunz4, 854776
 """
 
