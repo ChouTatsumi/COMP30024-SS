@@ -12,9 +12,10 @@ import sys
 import json
 
 class Node():
-
-    def __init__(self, index):
+    """A node class for A* Pathfinding"""
+    def __init__(self, index, movement):
         self.index = index
+        self.movement = movement
         self.g = 0
         self.h = 0
         self.f = 0
@@ -42,6 +43,76 @@ def main():
 
     board = {(0, 0) : 'red', (0, -1) : 'red', (-2, 1) : 'red', (-1, 0) : 'block', (-1, 1) : 'block', (1, 1) : 'block', (3, -1) : 'block'}
     print_board(board)
+
+def astar(index, colour):
+    # Initialize both open and closed list
+    open_list = []
+    close_list = []
+
+    #Add the start node
+    start_node = Node(index, 'START')
+    start_node.g = 0
+    start_node.h = heuristic(index, colour)
+    start_node.f = start_node.g + start_node.h
+
+    open_list.append(start_node)
+
+    while len(open_list) > 0:
+
+        # Get the current node
+        curr_node = open_list[0]
+        curr_i = 0
+        for i, item in enumerate(open_list):
+            if item.f < curr_node.f:
+                curr_node = item
+                curr_i = i
+
+        # Add current node to close list from open list
+        open_list.pop(curr_i)
+        close_list.append(curr_node)
+
+        # Find the goal
+        if exitable(colour, curr_node.index):
+            return print_path(close_list)
+        
+        # Generate children
+        children = []
+        
+        
+
+def heuristic(colour, index):
+    # x = ?
+    # return admissible_heuristic(index, colour) - x
+    return -1
+
+def admissible_heuristic(colour, index):
+    """
+    This is a function to calculate the true distance from index to any 
+    terminal
+    """
+    if colour == 'red':
+        return 3 - index[0]
+    elif colour == 'green':
+        return 3 - index[1]
+    elif colour == 'blue':
+        return index[0] + index[1] + 3
+
+def print_path(path_list):
+    start_node = path_list[0]
+
+    if start_node.movement != 'START':
+        print("ERROR: path list didn't start at start node.")
+
+    last_index = start_node.index
+
+    for i in range(1, len(path_list)):
+        node = path_list[i]
+        print('{} from {} to {}.'.format(node.movement, last_index, node.index))
+        last_index = node.index
+
+    print('EXIT from {}.'.format(last_index))
+    return path_list
+    
 
 def exitable(colour, index):
     if colour == 'red' and index[0] == 3 or \
