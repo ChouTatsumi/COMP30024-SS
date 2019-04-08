@@ -13,9 +13,11 @@ import json
 
 class Node():
     """A node class for A* Pathfinding"""
-    def __init__(self, index, movement):
+
+    def __init__(self, index, movement, parent = None):
         self.index = index
         self.movement = movement
+        self.parent = parent
         self.g = 0
         self.h = 0
         self.f = 0
@@ -43,6 +45,9 @@ def main():
 
     board = {(0, 0) : 'red', (0, -1) : 'red', (-2, 1) : 'red', (-1, 0) : 'block', (-1, 1) : 'block', (1, 1) : 'block', (3, -1) : 'block'}
     print_board(board)
+
+    # path = astar(index, colour)
+    # print_path(path)
 
 def astar(index, colour):
     # Initialize both open and closed list
@@ -73,7 +78,12 @@ def astar(index, colour):
 
         # Find the goal
         if exitable(colour, curr_node.index):
-            return print_path(close_list)
+            path = []
+            current = curr_node
+            while current is not None:
+                path.append(current)
+                current = current.parent
+            return path[::-1]
         
         # Generate children
         children = []
@@ -97,21 +107,21 @@ def admissible_heuristic(colour, index):
     elif colour == 'blue':
         return index[0] + index[1] + 3
 
-def print_path(path_list):
-    start_node = path_list[0]
+def print_path(path):
+    start_node = path[0]
 
     if start_node.movement != 'START':
         print("ERROR: path list didn't start at start node.")
 
     last_index = start_node.index
 
-    for i in range(1, len(path_list)):
-        node = path_list[i]
+    for i in range(1, len(path)):
+        node = path[i]
         print('{} from {} to {}.'.format(node.movement, last_index, node.index))
         last_index = node.index
 
     print('EXIT from {}.'.format(last_index))
-    return path_list
+    return path
     
 
 def exitable(colour, index):
