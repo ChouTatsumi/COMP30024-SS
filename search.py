@@ -4,7 +4,7 @@ Solution to Project Part A: Searching
 
 Authors:
 Group Sandscuplture
-Liu Xiaohan, xiaohanl4,
+Liu Xiaohan, xiaohanl4, 908471
 Zhang Xun, xunz4, 854776
 """
 
@@ -43,6 +43,13 @@ def main():
     board = {(0, 0) : 'red', (0, -1) : 'red', (-2, 1) : 'red', (-1, 0) : 'block', (-1, 1) : 'block', (1, 1) : 'block', (3, -1) : 'block'}
     print_board(board)
 
+    #test for jumpable
+    print(jumpable(board, [0, 0], [2, 0])) # should be Ture
+    print(jumpable(board, [0, 0], [3, 0])) # should be False
+    print(jumpable(board, [0, 0], [1, 0])) # should be False
+    print(jumpable(board, [-1, -2], [-1, 0])) # should be False
+    print(jumpable(board, [-3, -1], [3, -3])) # should be False
+
 def exitable(colour, index):
     if colour == 'red' and index[0] == 3 or \
         colour == 'green' and index[1] == 3 or \
@@ -51,18 +58,35 @@ def exitable(colour, index):
     return False
 
 def moveable(board, index_curr, index_dest):
-    #see if destination is in move action range
+    #see if destination is occupied
+    for key in board:
+        if key[0] == index_dest[0] and \
+        key[1] == index_dest[1]:
+            return False
+    #see if destination is in move range
     if index_dest[0] == index_curr[0] + 1 or \
         index_dest[0] == index_curr[0] - 1 or \
         index_dest[1] == index_curr[1] + 1 or \
         index_dest[1] == index_curr[1] - 1:
-        #see if destination is occupied
-        for key in board:
-            if key[0] == index_dest[0] and \
-            key[1] == index_dest[1]:
-                return False
-        return True
+            return True
+    #now that we know it's not in range
     return False
+
+def jumpable(board, index_curr, index_dest):
+    #see if destination is occupied
+    for key in board:
+        if key[0] == index_dest[0] and \
+        key[1] == index_dest[1]:
+            return False
+    #see if destination is in jump range
+    if ((index_dest[0] - index_curr[0]) % 2) == 0 and \
+        ((index_dest[1] - index_curr[1]) % 2) == 0 and \
+        (index_dest[0] - index_curr[0]) < 3 and \
+        (index_dest[1] - index_curr[1]) < 3:
+        return True
+    #now that we know it's not in range
+    return False
+
 
 def print_board(board_dict, message="", debug=False, **kwargs):
     """
