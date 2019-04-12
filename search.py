@@ -299,8 +299,8 @@ def possible_dest(state, index_curr):
     # see what's in move range
     for index in direction_list:
         # let dest be one of six locations in move range
-        if index_curr[0] + index[0] > -4 and index_curr[0] + index[0] < 4 and \
-                index_curr[1] + index[1] > -4 and index_curr[1] + index[1] < 4:
+        if index_curr[0] + index[0] >= -3 and index_curr[0] + index[0] <= 3 and \
+                index_curr[1] + index[1] >= -3 and index_curr[1] + index[1] <= 3:
             index_dest = (index_curr[0] + index[0], index_curr[1] + index[1])
         else:
             continue
@@ -309,7 +309,7 @@ def possible_dest(state, index_curr):
             dest_dic[index_dest] = "MOVE"
         else:
             # let dest be the location behind that obstacle
-            index_dest = (index_curr[0] + index[0], index_curr[1] + index[1])
+            index_dest = (index_dest[0] + index[0], index_dest[1] + index[1])
             # see if dest is occupied with an obstacle
             if jumpable(state, index_curr, index_dest):
                 dest_dic[index_dest] = "JUMP"
