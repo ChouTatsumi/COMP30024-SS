@@ -13,12 +13,14 @@ import json
 
 direction_list = [(-1, 0), (0, -1), (1, -1), (1, 0), (0, 1), (-1, 1)]
 
+
 class Node():
     """A node class for A* Pathfinding"""
 
-    def __init__(self, index, movement, parent = None):
+    def __init__(self, index, movement, state, parent=None):
         self.index = index
         self.movement = movement
+        self.state = state
         self.parent = parent
         self.g = 0
         self.h = 0
@@ -26,6 +28,7 @@ class Node():
 
     def __eq__(self, other):
         return self.index == other.index
+
 
 def main():
     with open(sys.argv[1]) as file:
@@ -42,6 +45,8 @@ def main():
     for qr in data['pieces']:
         init_state[(qr[0], qr[1])] = data['colour']
 
+    print_board(init_state)
+
     # search for path
     for qr in data['pieces']:
         index = (qr[0], qr[1])
@@ -56,13 +61,14 @@ def main():
     # board = {(0, 0) : 'red', (0, -1) : 'red', (-2, 1) : 'red', (-1, 0) : 'block', (-1, 1) : 'block', (1, 1) : 'block', (3, -1) : 'block'}
     # print_board(board)
 
+
 def astar(index, colour, state):
     # Initialize both open and closed list
     open_list = []
     close_list = []
 
-    #Add the start node
-    start_node = Node(index, 'START', None)
+    # Add the start node
+    start_node = Node(index, 'START', state.copy())
     start_node.state = state
     start_node.g = 0
     start_node.h = heuristic(index, colour, state)
@@ -83,9 +89,10 @@ def astar(index, colour, state):
         # Add current node to close list from open list
         open_list.pop(curr_i)
         close_list.append(curr_node)
-        
+
         # Find the goal
         if exitable(colour, curr_node.index):
+            state.pop(start_node.index)
             path = []
             current = curr_node
             while current is not None:
@@ -96,8 +103,9 @@ def astar(index, colour, state):
         # Generate children
         children = []
         children_dic = possible_dest(state, curr_node.index)
-        for (key, value) in children_dic.items():
-            new_node = Node(key, value, curr_node)
+        for (child_index, child_colour) in children_dic.items():
+            new_node = Node(child_index, child_colour,
+                            curr_node.state.copy(), curr_node)
             children.append(new_node)
 
         # evaluate the cost of each child
@@ -107,8 +115,12 @@ def astar(index, colour, state):
                 if child == node:
                     continue
 
+            # update state of the node
+            child.state.pop(curr_node.index)
+            child.state[child.index] = colour
+
             child.g = curr_node.g + 1
-            child.h = heuristic(child.index, colour, state)
+            child.h = heuristic(child.index, colour, child.state)
             child.f = child.g + child.h
 
             for node in open_list:
@@ -141,7 +153,7 @@ def heuristic(index, colour, state):
             q += 1
             r -= 1
             A_list.append((q, r))
-        
+
         q = index[0]
         r = index[1]
         while(q < 3 and r > -3):
@@ -209,6 +221,7 @@ def heuristic(index, colour, state):
 
     return output
 
+
 def offset(lst, state):
     output = 0
     flag = False
@@ -226,6 +239,7 @@ def offset(lst, state):
 
     return output
 
+
 def print_path(path):
     start_node = path[0]
 
@@ -238,9 +252,11 @@ def print_path(path):
         node = path[i]
         print('{} from {} to {}.'.format(node.movement, last_index, node.index))
         last_index = node.index
+        print_board(node.state)
 
     print('EXIT from {}.'.format(last_index))
     return path
+
 
 def exitable(colour, index):
     if colour == 'red' and index[0] == 3 or \
@@ -249,49 +265,57 @@ def exitable(colour, index):
         return True
     return False
 
+
 def moveable(state, index_curr, index_dest):
-    #see if destination is occupied
+    # see if destination is occupied
     if index_dest in state.keys():
         return False
-    #see if destination is in move range
+    # see if destination is in move range
     for index in direction_list:
         if index_dest[0] == (index_curr[0] + index[0]) and \
-            index_dest[1] == (index_curr[1] + index[1]):
+                index_dest[1] == (index_curr[1] + index[1]):
             return True
-    #return False by default
+    # return False by default
     return False
 
+
 def jumpable(state, index_curr, index_dest):
-    #see if destination is occupied
+    # see if destination is occupied
     if index_dest in state.keys():
         return False
-    #see if destination is in jump range
+    # see if destination is in jump range
     if ((index_dest[0] - index_curr[0]) % 2) == 0 and \
         ((index_dest[1] - index_curr[1]) % 2) == 0 and \
         (index_dest[0] - index_curr[0]) < 3 and \
             (index_dest[1] - index_curr[1]) < 3:
         return True
-    #return False by default
+    # return False by default
     return False
+
 
 def possible_dest(state, index_curr):
     dest_dic = {}
     # index_dest = ()
-    #see what's in move range
+    # see what's in move range
     for index in direction_list:
-        #let dest be one of six locations in move range
-        index_dest = (index_curr[0] + index[0], index_curr[1] + index[1])
-        #see if dest is occupied with an obstacle
+        # let dest be one of six locations in move range
+        if index_curr[0] + index[0] > -4 and index_curr[0] + index[0] < 4 and \
+                index_curr[1] + index[1] > -4 and index_curr[1] + index[1] < 4:
+            index_dest = (index_curr[0] + index[0], index_curr[1] + index[1])
+        else:
+            continue
+        # see if dest is occupied with an obstacle
         if moveable(state, index_curr, index_dest):
             dest_dic[index_dest] = "MOVE"
         else:
-            #let dest be the location behind that obstacle
+            # let dest be the location behind that obstacle
             index_dest = (index_curr[0] + index[0], index_curr[1] + index[1])
-            #see if dest is occupied with an obstacle
+            # see if dest is occupied with an obstacle
             if jumpable(state, index_curr, index_dest):
                 dest_dic[index_dest] = "JUMP"
-    
+
     return dest_dic
+
 
 def print_board(board_dict, message="", debug=False, **kwargs):
     """
