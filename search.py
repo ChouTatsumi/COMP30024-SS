@@ -45,7 +45,7 @@ def main():
     for qr in data['pieces']:
         init_state[(qr[0], qr[1])] = data['colour']
 
-    print_board(init_state)
+    # print_board(init_state)
 
     # search for path
     for qr in data['pieces']:
@@ -252,7 +252,7 @@ def print_path(path):
         node = path[i]
         print('{} from {} to {}.'.format(node.movement, last_index, node.index))
         last_index = node.index
-        print_board(node.state)
+        # print_board(node.state)
 
     print('EXIT from {}.'.format(last_index))
     return path
@@ -265,9 +265,11 @@ def exitable(colour, index):
         return True
     return False
 
+
 def inside_bound(index):
     return -3 <= index[0] <= 3 and -3 <= index[1] <= 3 \
         and -3 <= index[0] + index[1] <= 3
+
 
 def possible_dest(state, index_curr):
     dest_dic = {}
