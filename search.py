@@ -265,53 +265,26 @@ def exitable(colour, index):
         return True
     return False
 
-
-def moveable(state, index_curr, index_dest):
-    # see if destination is occupied
-    if index_dest in state.keys():
-        return False
-    # see if destination is in move range
-    for index in direction_list:
-        if index_dest[0] == (index_curr[0] + index[0]) and \
-                index_dest[1] == (index_curr[1] + index[1]):
-            return True
-    # return False by default
-    return False
-
-
-def jumpable(state, index_curr, index_dest):
-    # see if destination is occupied
-    if index_dest in state.keys():
-        return False
-    # see if destination is in jump range
-    if ((index_dest[0] - index_curr[0]) % 2) == 0 and \
-        ((index_dest[1] - index_curr[1]) % 2) == 0 and \
-        (index_dest[0] - index_curr[0]) < 3 and \
-            (index_dest[1] - index_curr[1]) < 3:
-        return True
-    # return False by default
-    return False
-
+def inside_bound(index):
+    return -3 <= index[0] <= 3 and -3 <= index[1] <= 3 \
+        and -3 <= index[0] + index[1] <= 3
 
 def possible_dest(state, index_curr):
     dest_dic = {}
     # index_dest = ()
     # see what's in move range
     for index in direction_list:
-        # let dest be one of six locations in move range
-        if index_curr[0] + index[0] >= -3 and index_curr[0] + index[0] <= 3 and \
-                index_curr[1] + index[1] >= -3 and index_curr[1] + index[1] <= 3:
-            index_dest = (index_curr[0] + index[0], index_curr[1] + index[1])
-        else:
+        index_dest = (index_curr[0] + index[0], index_curr[1] + index[1])
+        if not inside_bound(index_dest):
             continue
         # see if dest is occupied with an obstacle
-        if moveable(state, index_curr, index_dest):
+        if index_dest not in state.keys():
             dest_dic[index_dest] = "MOVE"
         else:
             # let dest be the location behind that obstacle
             index_dest = (index_dest[0] + index[0], index_dest[1] + index[1])
             # see if dest is occupied with an obstacle
-            if jumpable(state, index_curr, index_dest):
+            if inside_bound(index_dest) and index_dest not in state.keys():
                 dest_dic[index_dest] = "JUMP"
 
     return dest_dic
