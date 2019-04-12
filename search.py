@@ -11,8 +11,7 @@ Zhang Xun, xunz4, 854776
 import sys
 import json
 
-direction_list = [(-1, 0), (0, -1), (1, -1), \
-(1, 0), (0, 1), (-1, 1)]
+direction_list = [(-1, 0), (0, -1), (1, -1), (1, 0), (0, 1), (-1, 1)]
 
 class Node():
     """A node class for A* Pathfinding"""
@@ -69,7 +68,7 @@ def astar(index, colour, state):
     start_node = Node(index, 'START')
     start_node.state = state
     start_node.g = 0
-    start_node.h = heuristic(index, colour)
+    start_node.h = heuristic(index, colour, state)
     start_node.f = start_node.g + start_node.h
 
     open_list.append(start_node)
@@ -117,7 +116,7 @@ def astar(index, colour, state):
                     continue
 
             child.g = curr_node.g + 1
-            child.h = heuristic(colour, child.index)
+            child.h = heuristic(child.index, colour, state)
             child.f = child.g + child.h
 
             for node in open_list:
@@ -127,22 +126,112 @@ def astar(index, colour, state):
             open_list.append(child)
 
 
-def heuristic(colour, index):
-    # x = ?
-    # return admissible_heuristic(index, colour) - x
-    return -1
-
-def admissible_heuristic(colour, index):
+def heuristic(index, colour, state):
     """
     This is a function to calculate the true distance from index to any
     terminal
     """
+    output = 0
+
+    A_list = []
+    B_list = []
+    q = index[0]
+    r = index[1]
+
     if colour == 'red':
-        return 3 - index[0]
+        output = 3 - q
+
+        while(q < 3 and q + r < 3):
+            q += 1
+            A_list.append((q, r))
+        while(q < 3):
+            q += 1
+            r -= 1
+            A_list.append((q, r))
+        
+        q = index[0]
+        r = index[1]
+        while(q < 3 and r > -3):
+            q += 1
+            r -= 1
+            B_list.append((q, r))
+        while(q < 3):
+            q += 1
+            B_list.append((q, r))
+
+        A_offset = offset(A_list, state)
+        B_offset = offset(B_list, state)
+
+        output += min(A_offset, B_offset)
+
     elif colour == 'green':
-        return 3 - index[1]
+        output = 3 - r
+
+        while(r < 3 and q + r < 3):
+            r += 1
+            A_list.append((q, r))
+        while(r < 3):
+            q -= 1
+            r += 1
+            A_list.append((q, r))
+
+        q = index[0]
+        r = index[1]
+        while(r < 3 and q > -3):
+            q -= 1
+            r += 1
+            B_list.append((q, r))
+        while(r < 3):
+            r += 1
+            B_list.append((q, r))
+
+        A_offset = offset(A_list, state)
+        B_offset = offset(B_list, state)
+
+        output += min(A_offset, B_offset)
+
     elif colour == 'blue':
-        return index[0] + index[1] + 3
+        output = q + r + 3
+
+        while(q + r > -3 and q > -3):
+            q -= 1
+            A_list.append((q, r))
+        while(q + r > -3):
+            r -= 1
+            A_list.append((q, r))
+
+        q = index[0]
+        r = index[1]
+        while(q + r > -3 and r > -3):
+            r -= 1
+            B_list.append((q, r))
+        while(q + r > -3):
+            q -= 1
+            B_list.append((q, r))
+
+        A_offset = offset(A_list, state)
+        B_offset = offset(B_list, state)
+
+        output += min(A_offset, B_offset)
+
+    return output
+
+def offset(lst, state):
+    output = 0
+    flag = False
+
+    for i in range(0, len(lst) - 1):
+        if lst[i] in state.keys():
+            if not flag:
+                flag = True
+                output -= 1
+            else:
+                output += 2
+        else:
+            if flag:
+                flag = False
+
+    return output
 
 def print_path(path):
     start_node = path[0]
