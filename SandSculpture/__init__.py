@@ -1,0 +1,1 @@
+from SandSculpture.player import ExamplePlayer as Player
