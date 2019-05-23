@@ -66,7 +66,6 @@ class Player:
                     new_state[child] = self.colour
                     new_state.pop((q, r))
                     actions[action] = self.evaluate(self.colour, new_state)
-                    print(actions)
                 elif child in self.state:
                     child = (child[0] + dq, child[1] + dr)
                     if not (child in self.state or self.out_of_board(child)):
