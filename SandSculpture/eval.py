@@ -67,7 +67,8 @@ def f3(colour, state):
 
     for post in _BORDER_POSTS[colour]:
         min_idx = 0
-        min_distance = 7  # 棋盘中任意两点距离必定小于7
+        #Any location is less than 7 steps away from any other locations.
+        min_distance = 7
 
         for i in range(len(player_pieces)):
             d = hex_distance(post, player_pieces[i])
