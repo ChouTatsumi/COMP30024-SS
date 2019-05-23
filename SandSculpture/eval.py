@@ -20,10 +20,12 @@ def eval(colour, state):
     w4 = -100
     w5 = 20
     w6 = 5
+    w7 = 300
 
     return w1 * f1(colour, state) + w2 * f2(colour, state) + \
         w3 * f3(colour, state) + w4 * f4(colour, state) + \
-        w5 * f5(colour, state) + w6 * f6(colour, state)
+        w5 * f5(colour, state) + w6 * f6(colour, state) + \
+        w7 * f7(colour, state)
 
 
 def f1(colour, state):
@@ -175,6 +177,25 @@ def f6(colour, state):
 
     return output
 
+def f7(colour, state):
+    """
+    Prioritise stay on post when enemy is nearby.
+    """
+
+    player_pieces = []
+    output = 0
+
+    for location in _BORDER_POSTS[colour]:
+        if location in state.keys() and state[location] == colour:
+            player_pieces.append(location)
+
+    for pq, pr in player_pieces:
+        for dq, dr in _ADJACENT_STEPS:
+            if (pq + dq, pr + dr) in state and \
+            state[(pq + dq, pr + dr)] != colour:
+                output += 1
+
+    return output
 
 def hex_distance(location1, location2):
     """
