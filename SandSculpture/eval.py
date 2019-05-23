@@ -1,6 +1,6 @@
-from referee.game import _ADJACENT_STEPS
-
 # Game-algorithm-specific constants:
+_ADJACENT_STEPS = [(-1, +0), (+0, -1), (+1, -1), (+1, +0), (+0, +1), (-1, +1)]
+
 """
 A border post is a corner of enemy destination.
 _BORDER_POST is a dictionary of all four of
@@ -87,8 +87,6 @@ def f4(colour, state):
     """
     How many pieces of ours will be eaten.
     """
-
-    direction_list = [(-1, 0), (0, -1), (1, -1), (1, 0), (0, 1), (-1, 1)]
     player_pieces = []
     output = 0
 
@@ -97,7 +95,7 @@ def f4(colour, state):
             player_pieces.append(k)
 
     for pq, pr in player_pieces:
-        for dq, dr in direction_list:
+        for dq, dr in _ADJACENT_STEPS:
             if (pq + dq, pr + dr) in state:
                 opposite = (pq - dq, pr - dr)
                 if not (opposite in state or out_of_board(opposite)):
