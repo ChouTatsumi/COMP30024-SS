@@ -25,7 +25,7 @@ def eval(colour, state):
 
 def f1(colour, state):
     """
-    有多少我方棋子攻占“下水道”
+    How many pieces of ours are at border posts.
     """
     output = 0
 
@@ -37,7 +37,7 @@ def f1(colour, state):
 
 def f2(colour, state):
     """
-    有多少我方棋子位处边缘
+    How many pieces of ours are at edges.
     """
     output = 0
 
@@ -54,11 +54,16 @@ def f3(colour, state):
     return - 1
 
 def f4(colour, state):
+    """
+    How many pieces of ours will be eaten.
+    """
+
+    
     return - 1
 
 def f5(colour, state):
     """
-    The difference of pieces between self and enemies
+    Find the piece difference between us and enemies.
     """
     red = 0
     green = 0
@@ -120,7 +125,7 @@ def f6(colour, state):
 
     output = sum(sorted(distance)[:4])
 
-    # 如果敌方均健在，则不考虑移动至终点，优先守门
+    # If enemies are still alive, we hold our positions instead.
     if red != 0 and green != 0 and blue != 0:
         output = 0
 
