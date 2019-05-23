@@ -27,7 +27,7 @@ class Player:
             if v == self.colour:
                 pieces.append(k)
 
-        # 万事俱备，只欠冲锋 (优先exit)
+        # Prioritise EXIT when we are the only surviver
         if self.ready_to_exit < 4:
             count = 0
             for post in _FINISHING_HEXES[self.colour]:
@@ -43,7 +43,7 @@ class Player:
                 if post in self.state.keys() and self.state[post] == self.colour:
                     return ("EXIT", post)
 
-        # 正常展开
+        # Normal situation
         for q, r in pieces:
             for dq, dr in eval._ADJACENT_STEPS:
                 child = (q + dq, r + dr)
@@ -64,12 +64,12 @@ class Player:
                         new_state.pop((q, r))
                         actions[action] = eval.eval(self.colour, new_state)
 
-        # 无奈exit
+        # Have to EXIT
         if len(actions) == 0:
             for post in _FINISHING_HEXES[self.colour]:
                 if post in pieces:
                     return ("EXIT", post)
-            # 无奈pass
+            # Have to PASS
             return ("PASS", None)
 
         # return the action with max evaluation value
