@@ -1,12 +1,17 @@
 from referee.game import _ADJACENT_STEPS
 
 # Game-algorithm-specific constants:
-# 此处用于解释什么是门（敌方终点的角落）
+"""
+A border post is a corner of enemy destination.
+_BORDER_POST is a dictionary of all four of
+these posts for each color.
+"""
 _BORDER_POSTS = {
     'red': {(0, -3), (3, -3), (3, 0), (0, 3)},
     'green': {(-3, 3), (-3, 0), (3, 0), (0, 3)},
     'blue': {(-3, 3), (-3, 0), (0, -3), (3, -3)},
 }
+
 
 def eval(colour, state):
     w1 = 10
@@ -17,12 +22,13 @@ def eval(colour, state):
     w6 = 5
 
     return w1 * f1(colour, state) + w2 * f2(colour, state) + \
-            w3 * f3(colour, state) + w4 * f4(colour, state) + \
-            w5 * f5(colour, state) + w6 * f6(colour, state)
+        w3 * f3(colour, state) + w4 * f4(colour, state) + \
+        w5 * f5(colour, state) + w6 * f6(colour, state)
+
 
 def f1(colour, state):
     """
-    有多少我方棋子攻占“下水道”
+    How many pieces of ours are at border posts.
     """
     output = 0
 
@@ -32,9 +38,10 @@ def f1(colour, state):
 
     return output
 
+
 def f2(colour, state):
     """
-    有多少我方棋子位处边缘
+    How many pieces of ours are at edges.
     """
     output = 0
 
@@ -45,45 +52,61 @@ def f2(colour, state):
 
     return output
 
+
 def f3(colour, state):
     """
-    将下水道位置与所有棋子分别匹配，算出最短距离，并将其排除接下来的匹配
-    返回匹配总值
-    距离公式: distance = |q1 - q2| + |r1 - r2 + q1 - q2|
+    Match all border posts with our pieces and
+    find four pieces that are cloest to border posts.
     """
     output = 0
 
-    #我方棋子
-    pieces = []
+    player_pieces = []
     for k, v in state:
         if v == colour:
-            pieces.append(k)
+            player_pieces.append(k)
 
     for post in _BORDER_POSTS[colour]:
         min_idx = 0
         min_distance = 7  # 棋盘中任意两点距离必定小于7
-        
-        for i in range(len(pieces)):
-            d = hex_distance(post, pieces[i])
+
+        for i in range(len(player_pieces)):
+            d = hex_distance(post, player_pieces[i])
             if d < min_distance:
                 min_distance = d
                 min_idx = i
-        
-        if len(pieces) > 0:
+
+        if len(player_pieces) > 0:
             output += min_distance
-            pieces.pop(min_idx)
-            
+            player_pieces.pop(min_idx)
+
     return output
+
 
 def f4(colour, state):
     """
-    多少我方棋子下一步会被吃
+    How many pieces of ours will be eaten.
     """
-    return - 1
+
+    direction_list = [(-1, 0), (0, -1), (1, -1), (1, 0), (0, 1), (-1, 1)]
+    player_pieces = []
+    output = 0
+
+    for k, v in state.items():
+        if v == colour:
+            player_pieces.append(k)
+
+    for pq, pr in player_pieces:
+        for dq, dr in direction_list:
+            if (pq + dq, pr + dr) in state:
+                if (pq - dq, pr - dr) not in state:
+                    output += 1
+
+    return output
+
 
 def f5(colour, state):
     """
-    The difference of pieces between self and the enemies
+    Find the piece difference between us and enemies.
     """
     red = 0
     green = 0
@@ -113,12 +136,12 @@ def f5(colour, state):
 
     return output
 
+
 def f6(colour, state):
     """
-    total move from this state to terminal (exit)
-    prioritise the farest piece
-    if there is more than 4 pieces, only the nearest will be considered
-    并根据敌方数量调整权重
+    Find sum of distances between pieces that are closest
+    to destination and the destination.
+    Only triggers when all enemies are down.
     """
     red = 0
     green = 0
@@ -146,8 +169,20 @@ def f6(colour, state):
 
     output = sum(sorted(distance)[:4])
 
-    # 如果敌方均健在，则不考虑移动至终点，优先守门
+    # If enemies are still alive, we hold our positions instead.
     if red != 0 and green != 0 and blue != 0:
         output = 0
 
+    return output
+
+
+def hex_distance(location1, location2):
+    """
+    distance = |q1 - q2| + |r1 - r2 + q1 - q2|
+    """
+    q1 = location1[0]
+    q2 = location2[0]
+    r1 = location1[1]
+    r2 = location2[1]
+    output = abs(q1-q1) + abs(r1-r2+q1-q2)
     return output
