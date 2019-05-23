@@ -298,13 +298,21 @@ class Player:
 
     def hex_distance(self, location1, location2):
         """
-        distance = |q1 - q2| + |r1 - r2 + q1 - q2|
+        if |q1 - q2| < |r1 - r2|:
+            distance = |q1 - q2| + |r1 - r2 + q1 - q2|
+        if |q1 - q2| > |r1 - r2|:
+            distance = |r1 - r2| + |q1 - q2 + r1 - r2|
         """
         q1 = location1[0]
         q2 = location2[0]
         r1 = location1[1]
         r2 = location2[1]
-        output = abs(q1-q1) + abs(r1-r2+q1-q2)
+        
+        if (abs(q1 - q2) > abs(r1 - r2)):
+            output = abs(r1 - r2) + abs(q1 - q2 + r1 - r2)
+        else:
+            output = abs(q1 - q2) + abs(r1 - r2 + q1 - q2)
+
         return output
 
     def out_of_board(self, location):
