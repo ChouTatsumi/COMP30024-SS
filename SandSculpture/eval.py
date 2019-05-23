@@ -2,7 +2,7 @@ from referee.game import _ADJACENT_STEPS
 
 # Game-algorithm-specific constants:
 # 此处用于解释什么是门（敌方终点的角落）
-_BORDER_POST = {
+_BORDER_POSTS = {
     'red': {(0, -3), (3, -3), (3, 0), (0, 3)},
     'green': {(-3, 3), (-3, 0), (3, 0), (0, 3)},
     'blue': {(-3, 3), (-3, 0), (0, -3), (3, -3)},
@@ -15,6 +15,7 @@ def eval(colour, state):
     w4 = -50
     w5 = 100
     w6 = 5
+
     return w1 * f1(colour, state) + w2 * f2(colour, state) + \
             w3 * f3(colour, state) + w4 * f4(colour, state) + \
             w5 * f5(colour, state) + w6 * f6(colour, state)
@@ -25,7 +26,7 @@ def f1(colour, state):
     """
     output = 0
 
-    for location in _BORDER_POST[colour]:
+    for location in _BORDER_POSTS[colour]:
         if location in state.keys() and state[location] == colour:
             output += 1
 
@@ -37,19 +38,47 @@ def f2(colour, state):
     """
     output = 0
 
-    for k, v in state.items():
+    for (q, r), v in state.items():
         if v == colour:
-            q = k[0]
-            r = k[1]
             if abs(q) == 3 or abs(r) == 3 or abs(q + r) == 3:
                 output += 1
 
     return output
 
 def f3(colour, state):
-    return - 1
+    """
+    将下水道位置与所有棋子分别匹配，算出最短距离，并将其排除接下来的匹配
+    返回匹配总值
+    距离公式: distance = |q1 - q2| + |r1 - r2 + q1 - q2|
+    """
+    output = 0
+
+    #我方棋子
+    pieces = []
+    for k, v in state:
+        if v == colour:
+            pieces.append(k)
+
+    for post in _BORDER_POSTS[colour]:
+        min_idx = 0
+        min_distance = 7  # 棋盘中任意两点距离必定小于7
+        
+        for i in range(len(pieces)):
+            d = hex_distance(post, pieces[i])
+            if d < min_distance:
+                min_distance = d
+                min_idx = i
+        
+        if len(pieces) > 0:
+            output += min_distance
+            pieces.pop(min_idx)
+            
+    return output
 
 def f4(colour, state):
+    """
+    多少我方棋子下一步会被吃
+    """
     return - 1
 
 def f5(colour, state):
@@ -98,18 +127,18 @@ def f6(colour, state):
 
     # record all pieces in order to select the min 4 results
     distance = []
-    for k, v in state.items():
+    for (q, r), v in state.items():
         if v == 'red':
             if v == colour:
-                distance.append(3 - k[0])
+                distance.append(3 - q)
             red += 1
         elif v == 'green':
             if v == colour:
-                distance.append(3 - k[1])
+                distance.append(3 - r)
             green += 1
         elif v == 'blue':
             if v == colour:
-                distance.append(3 + k[0] + k[1])
+                distance.append(3 + q + r)
             blue += 1
         else:
             print('ERROR input in state')
