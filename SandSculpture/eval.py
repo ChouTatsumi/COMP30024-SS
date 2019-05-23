@@ -1,7 +1,11 @@
 from referee.game import _ADJACENT_STEPS
 
 # Game-algorithm-specific constants:
-# 此处用于解释什么是门（敌方终点的角落）
+"""
+A border post is a corner of enemy destination.
+_BORDER_POST is a dictionary of all four of
+these posts for each color.
+"""
 _BORDER_POST = {
     'red': {(0, -3), (3, -3), (3, 0), (0, 3)},
     'green': {(-3, 3), (-3, 0), (3, 0), (0, 3)},
@@ -33,7 +37,7 @@ def f4(colour, state):
 
 def f5(colour, state):
     """
-    The difference of pieces between self and the enemies
+    The difference of pieces between self and enemies
     """
     red = 0
     green = 0
@@ -65,10 +69,9 @@ def f5(colour, state):
 
 def f6(colour, state):
     """
-    total move from this state to terminal (exit)
-    prioritise the farest piece
-    if there is more than 4 pieces, only the nearest will be considered
-    并根据敌方数量调整权重
+    Find sum of distances between pieces that are closest
+    to destination and the destination.
+    Only triggers when all enemies are down.
     """
     red = 0
     green = 0
