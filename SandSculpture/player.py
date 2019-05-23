@@ -35,7 +35,11 @@ class Player:
             self.state[action[1][1]] = self.state[action[1][0]]
             self.state.pop(action[1][0])
         elif action[0] == "JUMP":
-            
+            self.state[action[1][1]] = self.state[action[1][0]]
+            self.state.pop(action[1][0])
+            q = (action[1][1][0] + action[1][0][0])/2
+            r = (action[1][1][1] + action[1][0][1])/2
+            self.state[(q,r)] = colour
         elif action[0] == "EXIT":
             self.state.pop(action[1])
 
