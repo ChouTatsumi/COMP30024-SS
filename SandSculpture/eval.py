@@ -1,15 +1,37 @@
+from referee.game import _ADJACENT_STEPS
+
+# Game-algorithm-specific constants:
+# 此处用于解释什么是门（敌方终点的角落）
+_BORDER_POST = {
+    'red': {(0, -3), (3, -3), (3, 0), (0, 3)},
+    'green': {(-3, 3), (-3, 0), (3, 0), (0, 3)},
+    'blue': {(-3, 3), (-3, 0), (0, -3), (3, -3)},
+}
+
 def eval(colour, state):
-    w1 = 100
-    w2 = -1
-    w3 = 3
-    w4 = -20
-    w5 = 20
-    w6 = 30
+    w1 = 10
+    w2 = 3
+    w3 = -1
+    w4 = -50
+    w5 = 100
+    w6 = 5
     return w1 * f1(colour, state) + w2 * f2(colour, state) + \
             w3 * f3(colour, state) + w4 * f4(colour, state) + \
             w5 * f5(colour, state) + w6 * f6(colour, state)
 
 def f1(colour, state):
+    return - 1
+
+def f2(colour, state):
+    return - 1
+
+def f3(colour, state):
+    return - 1
+
+def f4(colour, state):
+    return - 1
+
+def f5(colour, state):
     """
     The difference of pieces between self and the enemies
     """
@@ -19,11 +41,11 @@ def f1(colour, state):
     output = 0
 
     for v in state.values():
-        if v == 'r':
+        if v == 'red':
             red += 1
-        elif v == 'g':
+        elif v == 'green':
             green += 1
-        elif v == 'b':
+        elif v == 'blue':
             blue += 1
         else:
             print('ERROR input in state')
@@ -41,20 +63,43 @@ def f1(colour, state):
 
     return output
 
-def f2(colour, state):
+def f6(colour, state):
     """
     total move from this state to terminal (exit)
+    prioritise the farest piece
+    if there is more than 4 pieces, only the nearest will be considered
+    并根据敌方数量调整权重
     """
-    return - 1
+    red = 0
+    green = 0
+    blue = 0
+    output = 0
 
-def f3(colour, state):
-    return - 1
+    # record all pieces in order to select the min 4 results
+    distance = []
+    for k, v in state.items():
+        if v == 'red':
+            if v == colour:
+                distance.append(3 - k[0])
+            red += 1
+        elif v == 'green':
+            if v == colour:
+                distance.append(3 - k[1])
+            green += 1
+        elif v == 'blue':
+            if v == colour:
+                distance.append(3 + k[0] + k[1])
+            blue += 1
+        else:
+            print('ERROR input in state')
+            exit(-1)
 
-def f4(colour, state):
-    return - 1
+    distance.sort()
+    for i in range(4):
+        output += distance[i]
 
-def f5(colour, state):
-    return - 1
+    # 如果敌方均健在，则不考虑移动至终点，优先守门
+    if red != 0 and green != 0 and blue != 0:
+        output = 0
 
-def f6(colour, state):
-    return - 1
+    return output

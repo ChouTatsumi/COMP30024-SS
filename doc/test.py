@@ -1,5 +1,7 @@
-x = {(-1, 0): 'MOVE', (0, -1): 'MOVE', (1, -1): 'MOVE',
- (1, 0): 'MOVE', (0, 1): 'MOVE', (-1, 1): 'MOVE'}
+_STARTING_HEXES = {
+    'r': {(-3, 3), (-3, 2), (-3, 1), (-3, 0)},
+    'g': {(0, -3), (1, -3), (2, -3), (3, -3)},
+    'b': {(3, 0), (2, 1), (1, 2), (0, 3)},
+}
 
-for (key, value) in x.items():
-    print(key, value)
+print(type(_STARTING_HEXES['r']))

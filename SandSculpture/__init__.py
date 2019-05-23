@@ -1,1 +1,1 @@
-from SandSculpture.player import ExamplePlayer as Player
+from SandSculpture.player import Player
