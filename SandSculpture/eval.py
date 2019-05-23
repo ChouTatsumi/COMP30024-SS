@@ -20,10 +20,31 @@ def eval(colour, state):
             w5 * f5(colour, state) + w6 * f6(colour, state)
 
 def f1(colour, state):
-    return - 1
+    """
+    有多少我方棋子攻占“下水道”
+    """
+    output = 0
+
+    for location in _BORDER_POST[colour]:
+        if location in state.keys() and state[location] == colour:
+            output += 1
+
+    return output
 
 def f2(colour, state):
-    return - 1
+    """
+    有多少我方棋子位处边缘
+    """
+    output = 0
+
+    for k, v in state.items():
+        if v == colour:
+            q = k[0]
+            r = k[1]
+            if abs(q) == 3 or abs(r) == 3 or abs(q + r) == 3:
+                output += 1
+
+    return output
 
 def f3(colour, state):
     return - 1
@@ -94,9 +115,7 @@ def f6(colour, state):
             print('ERROR input in state')
             exit(-1)
 
-    distance.sort()
-    for i in range(4):
-        output += distance[i]
+    output = sum(sorted(distance)[:4])
 
     # 如果敌方均健在，则不考虑移动至终点，优先守门
     if red != 0 and green != 0 and blue != 0:
