@@ -13,7 +13,7 @@ _BORDER_POSTS = {
 }
 
 
-def eval(colour, state):
+def evaluate(colour, state):
     w1 = 10
     w2 = 3
     w3 = -1

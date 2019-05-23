@@ -1,4 +1,6 @@
-from SandSculpture import eval
+from SandSculpture.evaluate import _ADJACENT_STEPS
+from SandSculpture.evaluate import out_of_board
+from SandSculpture.evaluate import evaluate
 
 _FINISHING_HEXES = {
     'red': [(3, -3), (3, -2), (3, -1), (3, 0)],
@@ -7,6 +9,8 @@ _FINISHING_HEXES = {
 }
 
 class Player:
+
+
     def __init__(self, colour):
         self.colour = colour
         self.state = {(-3, 3): 'red', (-3, 2): 'red', (-3, 1): 'red', (-3, 0): 'red',
@@ -45,24 +49,25 @@ class Player:
 
         # Normal situation
         for q, r in pieces:
-            for dq, dr in eval._ADJACENT_STEPS:
+            for dq, dr in _ADJACENT_STEPS:
                 child = (q + dq, r + dr)
-                if not (child in self.state or eval.out_of_board(child)):
+                if not (child in self.state or out_of_board(child)):
                     action = ("MOVE", ((q, r), child))
                     new_state = self.state.copy()
                     new_state[child] = self.colour
                     new_state.pop((q, r))
-                    actions[action] = eval.eval(self.colour, new_state)
+                    actions[action] = evaluate(self.colour, new_state)
+                    print(actions)
                 elif child in self.state:
                     child = (child[0] + dq, child[1] + dr)
-                    if not (child in self.state or eval.out_of_board(child)):
+                    if not (child in self.state or out_of_board(child)):
                         action = ("JUMP", ((q, r), child))
                         new_state = self.state.copy()
                         new_state[child] = self.colour
                         new_state[((child[0] + q) / 2,
                                    (child[1] + r) / 2)] = self.colour
                         new_state.pop((q, r))
-                        actions[action] = eval.eval(self.colour, new_state)
+                        actions[action] = evaluate(self.colour, new_state)
 
         # Have to EXIT
         if len(actions) == 0:
@@ -104,3 +109,10 @@ class Player:
             self.state[(q,r)] = colour
         elif action[0] == "EXIT":
             self.state.pop(action[1])
+
+def main():
+    player = Player('red')
+    print(player.action())
+
+if __name__ == '__main__':
+    main()
