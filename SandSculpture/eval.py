@@ -99,7 +99,8 @@ def f4(colour, state):
     for pq, pr in player_pieces:
         for dq, dr in direction_list:
             if (pq + dq, pr + dr) in state:
-                if (pq - dq, pr - dr) not in state:
+                opposite = (pq - dq, pr - dr)
+                if not (opposite in state or out_of_board(opposite)):
                     output += 1
 
     return output
@@ -187,3 +188,9 @@ def hex_distance(location1, location2):
     r2 = location2[1]
     output = abs(q1-q1) + abs(r1-r2+q1-q2)
     return output
+
+def out_of_board(location):
+    q = location[0]
+    r = location[1]
+
+    return abs(q) > 3 or abs(r) > 3 or abs(q + r) > 3
