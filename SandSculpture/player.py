@@ -20,8 +20,6 @@ _BORDER_POSTS = {
 
 
 class Player:
-
-
     def __init__(self, colour):
         self.colour = colour
         self.state = {(-3, 3): 'red', (-3, 2): 'red', (-3, 1): 'red', (-3, 0): 'red',
