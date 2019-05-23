@@ -51,6 +51,10 @@ def f2(colour, state):
     return output
 
 def f3(colour, state):
+    """
+    Match all border posts with our pieces and
+    find four pieces that are cloest to border posts.
+    """
     return - 1
 
 def f4(colour, state):
@@ -58,8 +62,21 @@ def f4(colour, state):
     How many pieces of ours will be eaten.
     """
 
-    
-    return - 1
+    direction_list = [(-1, 0), (0, -1), (1, -1), (1, 0), (0, 1), (-1, 1)]
+    player_pieces = []
+    output = 0
+
+    for k, v in state.items():
+        if v == colour:
+            player_pieces.append(k)
+
+    for pq, pr in player_pieces:
+        for dq, dr in direction_list:
+            if (pq+dq, pr+dr) in state:
+                if (pq-dq, pr-dr) not in state:
+                    output += 1
+
+    return output
 
 def f5(colour, state):
     """
@@ -129,4 +146,12 @@ def f6(colour, state):
     if red != 0 and green != 0 and blue != 0:
         output = 0
 
+    return output
+
+def hex_distance(location1, location2):
+    q1 = location1[0]
+    q2 = location2[0]
+    r1 = location1[1]
+    r2 = location2[1]
+    output = abs(q1-q1) + abs(r1-r2+q1-q2)
     return output
