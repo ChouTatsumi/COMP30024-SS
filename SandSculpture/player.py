@@ -1,3 +1,5 @@
+from SandSculpture.eval import eval
+
 _FINISHING_HEXES = {
     'red': {(3, -3), (3, -2), (3, -1), (3, 0)},
     'green': {(-3, 3), (-2, 3), (-1, 3), (0, 3)},
@@ -14,7 +16,21 @@ class Player:
     def action(self):
         # TODO: Decide what action to take.
 
-        return ("MOVE", ((-3,0), (-2,0)))
+        # dictionaries store actions and its evaluation value
+        actions = {}
+
+        # generate action nodes (children)
+        pieces = []
+
+        for k, v in self.state:
+            if v == self.colour:
+                pieces.append(k)
+        
+        for piece in pieces:
+            
+
+
+        # return ("MOVE", ((-3,0), (-2,0)))
         #return ("JUMP", ((-3,0), (-1,0)))
         #return ("EXIT", (-3,0))
         #return ("PASS", None)
@@ -35,7 +51,7 @@ class Player:
             self.state[action[1][1]] = self.state[action[1][0]]
             self.state.pop(action[1][0])
         elif action[0] == "JUMP":
-            
+
         elif action[0] == "EXIT":
             self.state.pop(action[1])
 
