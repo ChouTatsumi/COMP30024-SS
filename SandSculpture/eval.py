@@ -17,8 +17,8 @@ def eval(colour, state):
     w1 = 10
     w2 = 3
     w3 = -1
-    w4 = -50
-    w5 = 100
+    w4 = -100
+    w5 = 20
     w6 = 5
 
     return w1 * f1(colour, state) + w2 * f2(colour, state) + \

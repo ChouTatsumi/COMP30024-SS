@@ -1,9 +1,9 @@
-from SandSculpture.eval import eval
+from SandSculpture import eval
 
 _FINISHING_HEXES = {
-    'red': {(3, -3), (3, -2), (3, -1), (3, 0)},
-    'green': {(-3, 3), (-2, 3), (-1, 3), (0, 3)},
-    'blue': {(-3, 0), (-2, -1), (-1, -2), (0, -3)}
+    'red': [(3, -3), (3, -2), (3, -1), (3, 0)],
+    'green': [(-3, 3), (-2, 3), (-1, 3), (0, 3)],
+    'blue': [(-3, 0), (-2, -1), (-1, -2), (0, -3)]
 }
 
 class Player:
@@ -12,6 +12,7 @@ class Player:
         self.state = {(-3, 3): 'red', (-3, 2): 'red', (-3, 1): 'red', (-3, 0): 'red',
                       (0, -3): 'green', (1, -3): 'green', (2, -3): 'green', (3, -3): 'green',
                       (3, 0): 'blue', (2, 1): 'blue', (1, 2): 'blue', (0, 3): 'blue'}
+        self.ready_to_exit = 0
 
     def action(self):
         # TODO: Decide what action to take.
@@ -25,15 +26,60 @@ class Player:
         for k, v in self.state:
             if v == self.colour:
                 pieces.append(k)
-        
-        for piece in pieces:
-            
 
+        # 万事俱备，只欠冲锋 (优先exit)
+        if self.ready_to_exit < 4:
+            count = 0
+            for post in _FINISHING_HEXES[self.colour]:
+                if post in self.state.keys() and self.state[post] == self.colour:
+                    count += 1
+            self.ready_to_exit = count
+        elif self.ready_to_exit > 4:
+            print("Player arguments error")
+            exit(-1)
 
-        # return ("MOVE", ((-3,0), (-2,0)))
-        #return ("JUMP", ((-3,0), (-1,0)))
-        #return ("EXIT", (-3,0))
-        #return ("PASS", None)
+        if self.ready_to_exit == 4:
+            for post in _FINISHING_HEXES[self.colour]:
+                if post in self.state.keys() and self.state[post] == self.colour:
+                    return ("EXIT", post)
+
+        # 正常展开
+        for q, r in pieces:
+            for dq, dr in eval._ADJACENT_STEPS:
+                child = (q + dq, r + dr)
+                if not (child in self.state or eval.out_of_board(child)):
+                    action = ("MOVE", ((q, r), child))
+                    new_state = self.state.copy()
+                    new_state[child] = self.colour
+                    new_state.pop((q, r))
+                    actions[action] = eval.eval(self.colour, new_state)
+                elif child in self.state:
+                    child = (child[0] + dq, child[1] + dr)
+                    if not (child in self.state or eval.out_of_board(child)):
+                        action = ("JUMP", ((q, r), child))
+                        new_state = self.state.copy()
+                        new_state[child] = self.colour
+                        new_state[((child[0] + q) / 2,
+                                   (child[1] + r) / 2)] = self.colour
+                        new_state.pop((q, r))
+                        actions[action] = eval.eval(self.colour, new_state)
+
+        # 无奈exit
+        if len(actions) == 0:
+            for post in _FINISHING_HEXES[self.colour]:
+                if post in pieces:
+                    return ("EXIT", post)
+            # 无奈pass
+            return ("PASS", None)
+
+        # return the action with max evaluation value
+        # sort actions dictionary by value
+        items = actions.items()
+        # gernerate a list in form of [(value, action)]
+        reverse_items = [(v[1], v[0]) for v in items]
+        reverse_items.sort(reverse = True)
+
+        return reverse_items[0][1]
 
     def update(self, colour, action):
         """
@@ -48,117 +94,13 @@ class Player:
         """
         # TODO: Update state representation in response to action.
         if action[0] == "MOVE":
-            self.state[action[1][1]] = self.state[action[1][0]]
+            self.state[action[1][1]] = colour
             self.state.pop(action[1][0])
         elif action[0] == "JUMP":
-
+            self.state[action[1][1]] = colour
+            self.state.pop(action[1][0])
+            q = (action[1][1][0] + action[1][0][0])/2
+            r = (action[1][1][1] + action[1][0][1])/2
+            self.state[(q,r)] = colour
         elif action[0] == "EXIT":
             self.state.pop(action[1])
-
-# def main():
-#     #initialise players
-#     player = Player("red")
-
-#     #initialise board
-#     print_board(player.state)
-
-#     # #determine action for P1
-#     # player1_action = player1.action()
-
-#     # #update P1 state
-#     # player1.update(player1.colour,player1_action)
-
-#     # #update board
-#     # board = {}
-#     # for tuple in player1.piece_loc:
-#     #     board[tuple] = player1.colour
-#     # for tuple in player2.piece_loc:
-#     #     board[tuple] = player2.colour
-#     # for tuple in player3.piece_loc:
-#     #     board[tuple] = player3.colour
-#     # print_board(board)
-
-
-# def print_board(board_dict, message="", debug=False, **kwargs):
-#     """
-#     Helper function to print a drawing of a hexagonal board's contents.
-
-#     Arguments:
-
-#     * `board_dict` -- dictionary with tuples for keys and anything printable
-#     for values. The tuple keys are interpreted as hexagonal coordinates (using
-#     the axial coordinate system outlined in the project specification) and the
-#     values are formatted as strings and placed in the drawing at the corres-
-#     ponding location (only the first 5 characters of each string are used, to
-#     keep the drawings small). Coordinates with missing values are left blank.
-
-#     Keyword arguments:
-
-#     * `message` -- an optional message to include on the first line of the
-#     drawing (above the board) -- default `""` (resulting in a blank message).
-#     * `debug` -- for a larger board drawing that includes the coordinates
-#     inside each hex, set this to `True` -- default `False`.
-#     * Or, any other keyword arguments! They will be forwarded to `print()`.
-#     """
-
-#     # Set up the board template:
-#     if not debug:
-#         # Use the normal board template (smaller, not showing coordinates)
-#         template = """# {0}
-# #           .-'-._.-'-._.-'-._.-'-.
-# #          |{16:}|{23:}|{29:}|{34:}|
-# #        .-'-._.-'-._.-'-._.-'-._.-'-.
-# #       |{10:}|{17:}|{24:}|{30:}|{35:}|
-# #     .-'-._.-'-._.-'-._.-'-._.-'-._.-'-.
-# #    |{05:}|{11:}|{18:}|{25:}|{31:}|{36:}|
-# #  .-'-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'-.
-# # |{01:}|{06:}|{12:}|{19:}|{26:}|{32:}|{37:}|
-# # '-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'
-# #    |{02:}|{07:}|{13:}|{20:}|{27:}|{33:}|
-# #    '-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'
-# #       |{03:}|{08:}|{14:}|{21:}|{28:}|
-# #       '-._.-'-._.-'-._.-'-._.-'-._.-'
-# #          |{04:}|{09:}|{15:}|{22:}|
-# #          '-._.-'-._.-'-._.-'-._.-'"""
-#     else:
-#         # Use the debug board template (larger, showing coordinates)
-#         template = """# {0}
-# #              ,-' `-._,-' `-._,-' `-._,-' `-.
-# #             | {16:} | {23:} | {29:} | {34:} |
-# #             |  0,-3 |  1,-3 |  2,-3 |  3,-3 |
-# #          ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
-# #         | {10:} | {17:} | {24:} | {30:} | {35:} |
-# #         | -1,-2 |  0,-2 |  1,-2 |  2,-2 |  3,-2 |
-# #      ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
-# #     | {05:} | {11:} | {18:} | {25:} | {31:} | {36:} |
-# #     | -2,-1 | -1,-1 |  0,-1 |  1,-1 |  2,-1 |  3,-1 |
-# #  ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
-# # | {01:} | {06:} | {12:} | {19:} | {26:} | {32:} | {37:} |
-# # | -3, 0 | -2, 0 | -1, 0 |  0, 0 |  1, 0 |  2, 0 |  3, 0 |
-# #  `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-'
-# #     | {02:} | {07:} | {13:} | {20:} | {27:} | {33:} |
-# #     | -3, 1 | -2, 1 | -1, 1 |  0, 1 |  1, 1 |  2, 1 |
-# #      `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-'
-# #         | {03:} | {08:} | {14:} | {21:} | {28:} |
-# #         | -3, 2 | -2, 2 | -1, 2 |  0, 2 |  1, 2 | key:
-# #          `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' ,-' `-.
-# #             | {04:} | {09:} | {15:} | {22:} |   | input |
-# #             | -3, 3 | -2, 3 | -1, 3 |  0, 3 |   |  q, r |
-# #              `-._,-' `-._,-' `-._,-' `-._,-'     `-._,-'"""
-
-#     # prepare the provided board contents as strings, formatted to size.
-#     ran = range(-3, +3+1)
-#     cells = []
-#     for qr in [(q, r) for q in ran for r in ran if -q-r in ran]:
-#         if qr in board_dict:
-#             cell = str(board_dict[qr]).center(5)
-#         else:
-#             cell = "     "  # 5 spaces will fill a cell
-#         cells.append(cell)
-
-#     # fill in the template to create the board drawing, then print!
-#     board = template.format(message, *cells)
-#     print(board, **kwargs)
-
-# if __name__ == '__main__':
-#     main()

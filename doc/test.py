@@ -2,11 +2,20 @@ board = {(0, 0): 'red', (0, -1): 'red', (-2, 1): 'red', (-1, 0): 'block', (-1, 1
 
 pieces = []
 
+child = (2, 3)
+
+
+items = board.items()
+reverse_items = [(v[1], v[0]) for v in items]
+
+print(items)
+print(reverse_items)
+
 # for k,v in board.items():
 #     if v == 'red':
 #         pieces.append(k)
 
-pieces.pop()
+# pieces.pop()
 
 # print(pieces)
 
